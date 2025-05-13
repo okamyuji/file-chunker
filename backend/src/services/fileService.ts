@@ -7,6 +7,7 @@ export class FileService {
   private tempDir: string;
   private finalDir: string;
   private errorRate: number;
+  private static combining: Set<string> = new Set();
 
   constructor() {
     this.tempDir = config.upload.tempDir;
@@ -40,8 +41,20 @@ export class FileService {
 
       // すべてのチャンクがアップロードされたかチェック
       if (this.checkAllChunksUploaded(fileChunk.originalFilename, fileChunk.totalChunks)) {
-        // チャンクを結合して最終ディレクトリに保存
-        await this.combineChunks(fileChunk.originalFilename, fileChunk.totalChunks);
+        // すでに結合中なら何もしない
+        if (FileService.combining.has(fileChunk.originalFilename)) {
+          return {
+            success: true,
+            message: '結合処理中です',
+            filename: fileChunk.originalFilename,
+          };
+        }
+        FileService.combining.add(fileChunk.originalFilename);
+        try {
+          await this.combineChunks(fileChunk.originalFilename, fileChunk.totalChunks);
+        } finally {
+          FileService.combining.delete(fileChunk.originalFilename);
+        }
         return {
           success: true,
           message: 'ファイルアップロードが完了し、結合されました',
