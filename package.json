@@ -1,0 +1,24 @@
+{
+  "name": "file-chunker",
+  "version": "1.0.0",
+  "description": "大きなファイルを分割してアップロードするアプリケーション",
+  "scripts": {
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm start",
+    "dev": "concurrently --raw \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "build:backend": "cd backend && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "build": "npm run build:backend && npm run build:frontend",
+    "start:backend": "cd backend && npm start",
+    "start:frontend": "cd frontend && serve -s build",
+    "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "9.1.2",
+    "serve": "^14.2.0"
+  },
+  "dependencies": {
+    "file-chunker": "file:"
+  }
+}
