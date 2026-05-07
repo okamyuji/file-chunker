@@ -1,5 +1,5 @@
 diff --git a/node_modules/react-scripts/config/webpackDevServer.config.js b/node_modules/react-scripts/config/webpackDevServer.config.js
-index 522a81b..80818dc 100644
+index 522a81b..24d1a4a 100644
 --- a/node_modules/react-scripts/config/webpackDevServer.config.js
 +++ b/node_modules/react-scripts/config/webpackDevServer.config.js
 @@ -99,7 +99,12 @@ module.exports = function (proxy, allowedHost) {
@@ -16,7 +16,7 @@ index 522a81b..80818dc 100644
      host,
      historyApiFallback: {
        // Paths with dots should still use the history fallback.
-@@ -109,27 +114,41 @@ module.exports = function (proxy, allowedHost) {
+@@ -109,27 +114,43 @@ module.exports = function (proxy, allowedHost) {
      },
      // `proxy` is run between `before` and `after` `webpack-dev-server` hooks
      proxy,
@@ -28,12 +28,14 @@ index 522a81b..80818dc 100644
 +
        // Keep `evalSourceMapMiddleware`
        // middlewares before `redirectServedPath` otherwise will not have any effect
-       // This lets us fetch source contents from webpack for the error overlay
--      devServer.app.use(evalSourceMapMiddleware(devServer));
-+      middlewares.unshift({
-+        name: 'evalSourceMapMiddleware',
-+        middleware: evalSourceMapMiddleware(devServer),
-+      });
+-      // This lets us fetch source contents from webpack for the error overlay
++      // This lets us fetch source contents from webpack for the error overlay.
++      // Register directly on `devServer.app` (mirroring the original
++      // onBeforeSetupMiddleware) so it precedes the user-provided proxySetup,
++      // which also registers via `devServer.app.use`. Putting it in the
++      // `middlewares` array would defer registration until after this function
++      // returns, reversing the original ordering.
+       devServer.app.use(evalSourceMapMiddleware(devServer));
  
        if (fs.existsSync(paths.proxySetup)) {
          // This registers user provided middleware for proxy reasons
